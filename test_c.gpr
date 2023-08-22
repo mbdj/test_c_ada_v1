@@ -1,0 +1,51 @@
+with "config/test_c_config.gpr";
+
+-- Ajout
+with "C:\Users\mbdj\Dev\AdaLib\Ada_Drivers_Library-master\boards\nucleo_f446re\nucleo_f446re_full.gpr";
+-- Fin Ajout
+
+
+project Test_C is
+
+
+   -- ajout
+   for Runtime ("ada") use "embedded-stm32f4";
+   for Target use "arm-eabi";
+   -- fin ajout
+
+
+   for Library_Name use "Test_C";
+   for Library_Version use project'Library_Name & ".so." & Test_C_Config.Crate_Version;
+
+   for Source_Dirs use ("src/", "config/");
+   for Object_Dir use "obj/" & Test_C_Config.Build_Profile;
+   for Create_Missing_Dirs use "True";
+   for Library_Dir use "lib";
+
+   type Library_Type_Type is ("relocatable", "static", "static-pic");
+   Library_Type : Library_Type_Type := external ("TEST_C_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
+   for Library_Kind use Library_Type;
+
+
+   package Compiler is
+      for Default_Switches ("Ada") use Test_C_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+
+   --
+   --
+   -- Rajout : Voir https://blog.adacore.com/embedded-ada-spark-theres-a-shortcut
+   --
+   for Library_Interface use ("test_c");
+   --
+   --
+
+end Test_C;
